@@ -1,4 +1,5 @@
 *.log
 __pycache__
-configs.py
+token.json
 env
+splitmoneybotenv

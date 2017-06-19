@@ -5,17 +5,13 @@ import configs
 import logging
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOG_FILE = os.path.join(BASE_DIR, "SplitMoneyBot/logs/logs.log")
-
-
-if not os.path.exists(LOG_FILE):
-    os.mkdir(os.path.dirname(LOG_FILE))
+if not os.path.exists(configs.LOG_FILE):
+    os.mkdir(os.path.dirname(configs.LOG_FILE))
 
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
-                    filename=LOG_FILE
+                    filename=configs.LOG_FILE
                     )
 
 def start_bot(bot, update):

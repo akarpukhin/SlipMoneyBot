@@ -6,7 +6,7 @@ Invate him in Chat and ask him to help.
 # Installation:
 1. git clone https://github.com/akarpukhin/SplitMoneyBot
 2. cd SplitMoneyBot
-3. pip3 install -r requierements.txt
+3. pip install -r requierements.txt
 
 One more thing which you need:
 TELEGRAM_BOT_KEY - to launch bot
@@ -24,4 +24,4 @@ example:
 #Usage:
 How to run bot:
     Execute command:
-        python3 bot.py
+        python bot.py

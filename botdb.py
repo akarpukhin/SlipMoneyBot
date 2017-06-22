@@ -36,7 +36,7 @@ class Goal(Base):
 class Event(Base):
     __tablename__ = 'event'
     event_id = Column(Integer, primary_key=True)
-    event_id = Column(Integer)
+    user_list_id = Column(Integer)
     event = Column(String(500))
     goal_id = Column(Integer)
     status = Column(String(1)) # Status: A | D

@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine('sqlite:///blog.sqlite')
+engine = create_engine('sqlite:///botdb.sqlite')
 
 db_session = scoped_session(sessionmaker(bind=engine))
 
@@ -12,17 +12,66 @@ Base.query = db_session.query_property()
 
 
 
-# class User(Base):
-#     __tablename__ = 'users'
-#     id = Column(Integer, primary_key=True)
-#     first_name = Column(String(50))
-#     last_name = Column(String(50))
-#     email = Column(String(120), unique=True)
+class UserList(Base):
+    __tablename__ = 'userlist'
+    user_list_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    status = Column(String(1)) # Status: A | D
 
-#     def __init__(self, first_name=None, last_name=None, email=None):
-#         self.first_name = first_name
-#         self.last_name = last_name
-#         self.email = email
+    def __init__(self, user_id=None, status=None):
+        self.user_id = user_id
+        self.status = status
 
-#     def __repr__(self):
-#         return '<User {} {}>'.format(self.first_name, self.last_name)
+    #def __repr__(self):
+    #    pass
+
+
+class Goal(Base):
+    __tablename__ = 'goal'
+    goal_id = Column(Integer, primary_key=True)
+    user_list_id = Column(Integer)
+    goal = Column(String(500))
+    status = Column(String(1)) # Status: A | D
+
+    def __init__(self, user_list_id=None, goal=None, status=None):
+        self.user_list_id = user_list_id
+        self.goal = goal
+        self.status = status
+
+    #def __repr__(self):
+    #    pass
+
+
+class Event(Base):
+    __tablename__ = 'event'
+    event_id = Column(Integer, primary_key=True)
+    event_id = Column(Integer)
+    event = Column(String(500))
+    goal_id = Column(Integer)
+    status = Column(String(1)) # Status: A | D
+
+    def __init__(self, first_name=None, last_name=None, email=None):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.email = email
+
+    #def __repr__(self):
+    #    pass
+
+
+class Users(Base):
+    __tablename__ = 'users'
+    user_id = Column(Integer, primary_key=True)
+    nickname = Column(String(50))
+    user_list_id = Column(Integer)
+    goal_id = Column(Integer)
+    event_id = Column(Integer)
+
+    def __init__(self, nickname=None, user_list_id=None, goal_id=None, event_id=None:
+        self.nickname = nickname
+        self.user_list_id = user_list_id
+        self.goal_id = goal_id
+        self.event_id = event_id@
+
+    #def __repr__(self):
+        #pass

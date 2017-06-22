@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 import configs
 import logging
-import botdb
+from botdb import db_session, Users, UserList, Event, Goal
 
 
 if not os.path.exists(configs.LOG_FILE):
@@ -20,9 +20,6 @@ def start_bot(bot, update):
     mytext = "Привет {}! Спасибо, что добавили меня!".format(update.message.chat.first_name)
     logging.info('Пользователь {} нажал /start'.format(update.message.chat.username))
     update.message.reply_text(mytext)
-
-    userlist = list = bot.getChatMember(update.message.chat.id)
-    print(userlist)
 
 
 def main():

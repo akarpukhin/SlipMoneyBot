@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 import configs
 import logging
-from botdb import db_session, Base, Users, UserList, Goal, Event
+from botdb import db_session, engine, Base, Users, UserList, Goal, Event
 
 
 if not os.path.exists(configs.LOG_FILE):

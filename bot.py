@@ -4,12 +4,11 @@ import os
 from datetime import datetime
 import configs
 import logging
-from botdb import db_session, Users, UserList, Event, Goal
+from botdb import db_session, Base, Users, UserList, Goal, Event
 
 
 if not os.path.exists(configs.LOG_FILE):
     os.mkdir(os.path.dirname(configs.LOG_FILE))
-
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
@@ -23,6 +22,8 @@ def start_bot(bot, update):
 
 
 def main():
+    Base.metadata.create_all(bind=engine)
+
     updtr = Updater(configs.TELEGRAM_BOT_KEY)
 
     updtr.dispatcher.add_handler(CommandHandler("start", start_bot))

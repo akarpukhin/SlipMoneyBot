@@ -18,12 +18,8 @@ class UserList(Base):
     user_id = Column(Integer)
     status = Column(String(1)) # Status: A | D
 
-    def __init__(self, user_id=None, status=None):
-        self.user_id = user_id
-        self.status = status
-
-    #def __repr__(self):
-    #    pass
+    def __repr__(self):
+        return '<User List ID: %s, Status: %d>' % (self.user_list_id, self.status)
 
 
 class Goal(Base):
@@ -33,13 +29,8 @@ class Goal(Base):
     goal = Column(String(500))
     status = Column(String(1)) # Status: A | D
 
-    def __init__(self, user_list_id=None, goal=None, status=None):
-        self.user_list_id = user_list_id
-        self.goal = goal
-        self.status = status
-
-    #def __repr__(self):
-    #    pass
+    def __repr__(self):
+        return '<Goal ID: %s, Status: %d>' % (self.goal_id, self.status)
 
 
 class Event(Base):
@@ -50,13 +41,8 @@ class Event(Base):
     goal_id = Column(Integer)
     status = Column(String(1)) # Status: A | D
 
-    def __init__(self, first_name=None, last_name=None, email=None):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-
-    #def __repr__(self):
-    #    pass
+    def __repr__(self):
+        return '<Event ID: %s, Status: %d>' % (self.event_id, self.status)
 
 
 class Users(Base):
@@ -66,12 +52,12 @@ class Users(Base):
     user_list_id = Column(Integer)
     goal_id = Column(Integer)
     event_id = Column(Integer)
+    status = Column(String(1)) # if remove User from List set status to D for this List, Default = A
 
-    def __init__(self, nickname=None, user_list_id=None, goal_id=None, event_id=None:
-        self.nickname = nickname
-        self.user_list_id = user_list_id
-        self.goal_id = goal_id
-        self.event_id = event_id@
+    def __repr__(self):
+        return '<User ID: %s, Status: %d>' % (self.user_id, self.status)
 
-    #def __repr__(self):
-        #pass
+
+if __name__ == "__main__":
+    Base.metadata.create_all(bind=engine)
+    print("База данных успешно создана")

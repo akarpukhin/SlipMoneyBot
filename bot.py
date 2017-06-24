@@ -5,6 +5,7 @@ from datetime import datetime
 import configs
 import logging
 from botdb import db_session, engine, Base, Users, UserList, Goal, Event
+import users
 
 
 if not os.path.exists(configs.LOG_FILE):
@@ -14,6 +15,7 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
                     filename=configs.LOG_FILE
                     )
+
 
 def start_bot(bot, update):
     mytext = "Привет {}! Спасибо, что добавили меня!".format(update.message.chat.first_name)
@@ -27,6 +29,7 @@ def main():
     updtr = Updater(configs.TELEGRAM_BOT_KEY)
 
     updtr.dispatcher.add_handler(CommandHandler("start", start_bot))
+    updtr.dispatcher.add_handler(CommandHandler("join", users.join))
 
     updtr.start_polling()
     updtr.idle()

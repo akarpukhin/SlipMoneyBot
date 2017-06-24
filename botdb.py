@@ -11,12 +11,15 @@ Base = declarative_base()
 Base.query = db_session.query_property()
 
 
-
 class UserList(Base):
     __tablename__ = 'userlist'
     user_list_id = Column(Integer, primary_key=True)
     user_id = Column(Integer)
     status = Column(String(1)) # Status: A | D
+
+    def __init__(self, user_id):
+        self.user_id = user_id
+        self.status = "A"
 
     def __repr__(self):
         return '<User List ID: %s, Status: %d>' % (self.user_list_id, self.status)
@@ -48,11 +51,22 @@ class Event(Base):
 class Users(Base):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key=True)
+    first_name = Column(String(50))
+    last_name = Column(String(50))
     nickname = Column(String(50))
     user_list_id = Column(Integer)
     goal_id = Column(Integer)
     event_id = Column(Integer)
     status = Column(String(1)) # if remove User from List set status to D for this List, Default = A
+
+    def __init__(self, user_id, first_name=None, last_name=None, nickname=None, user_list_id=None, goal_id=None, event_id=None):
+        self.user_id = user_id
+        self.first_name = first_name
+        self.last_name = last_name
+        self.nickname = nickname
+        self.user_list_id = user_list_id
+        self.goal_id = goal_id
+        self.event_id = event_id
 
     def __repr__(self):
         return '<User ID: %s, Status: %d>' % (self.user_id, self.status)

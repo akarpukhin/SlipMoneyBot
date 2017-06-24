@@ -24,15 +24,6 @@ def start_bot(bot, update):
     update.message.reply_text(mytext)
 
 
-def create_user_list(bot, update):
-    mytext = "Привет {}!".format(update.message.chat.first_name)
-    logging.info('Пользователь {} нажал /create_user_list'.format(update.message.chat.username))
-    update.message.reply_text(mytext)
-    me = UserList(update.message.chat.username)
-    db_session.add(me)
-    db_session.commit()
-
-
 def restart(bot, update):
     bot.send_message(update.message.chat_id, "Bot is restarting...")
     time.sleep(0.2)
@@ -45,9 +36,8 @@ def main():
     updtr = Updater(configs.TELEGRAM_BOT_KEY)
 
     updtr.dispatcher.add_handler(CommandHandler("start", start_bot))
-    updtr.dispatcher.add_handler(CommandHandler("create_user_list", create_user_list))
     updtr.dispatcher.add_handler(CommandHandler('r', restart))
-    
+
     updtr.start_polling()
     updtr.idle()
 

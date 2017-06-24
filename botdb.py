@@ -15,14 +15,14 @@ class UserList(Base):
     __tablename__ = 'userlist'
     user_list_id = Column(Integer, primary_key=True)
     user_id = Column(Integer)
-    is_active = Column(Boolean, default=True)
+    is_user_active = Column(Boolean, default=True)
 
-    def __init__(self, user_id=None, is_active=None):
+    def __init__(self, user_id=None, is_user_active=None):
         self.user_id = user_id
-        self.is_active = is_active
+        self.is_user_active = is_user_active
 
     def __repr__(self):
-        return '<User List ID: %s, Status: %d>' % (self.user_list_id, self.is_active)
+        return '<User List ID: %s, Status: %d>' % (self.user_list_id, self.is_user_active)
 
 
 class Goal(Base):
@@ -30,10 +30,10 @@ class Goal(Base):
     goal_id = Column(Integer, primary_key=True)
     user_list_id = Column(Integer)
     goal = Column(String(500))
-    status = Column(String(1))  # Status: A | D
+    is_active = Column(Boolean, default=True)
 
     def __repr__(self):
-        return '<Goal ID: %s, Status: %d>' % (self.goal_id, self.status)
+        return '<Goal ID: %s, Status: %d>' % (self.goal_id, self.is_active)
 
 
 class Event(Base):
@@ -42,20 +42,16 @@ class Event(Base):
     user_list_id = Column(Integer)
     event = Column(String(500))
     goal_id = Column(Integer)
-    status = Column(String(1))  # Status: A | D
+    is_active = Column(Boolean, default=True)
 
     def __repr__(self):
-        return '<Event ID: %s, Status: %d>' % (self.event_id, self.status)
+        return '<Event ID: %s, Status: %d>' % (self.event_id, self.is_active)
 
 
 class Users(Base):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key=True)
     nickname = Column(String(50))
-    user_list_id = Column(Integer)
-    goal_id = Column(Integer)
-    event_id = Column(Integer)
-    status = Column(String(1))  # if remove User from List set status to D for this List, Default = A
 
     def __repr__(self):
         return '<User ID: %s, Status: %d>' % (self.user_id, self.status)

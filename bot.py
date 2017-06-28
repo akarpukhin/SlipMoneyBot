@@ -6,7 +6,8 @@ import sys
 import time
 import configs
 import logging
-from botdb import db_session, engine, Base, Users, UserList, Goal, Event
+from botdb import db_session, engine
+from botdb import Base, User, UserList, Goal, Event, List
 
 
 if not os.path.exists(configs.LOG_FILE):
@@ -22,6 +23,9 @@ def start_bot(bot, update):
     mytext = "Привет {}! Спасибо, что добавили меня!".format(update.message.chat.first_name)
     logging.info('Пользователь {} нажал /start'.format(update.message.chat.username))
     update.message.reply_text(mytext)
+    user = User(update.message.chat.id)
+    db_session.add(user)
+    db_session.commit()
 
 
 def restart(bot, update):

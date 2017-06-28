@@ -11,50 +11,59 @@ Base = declarative_base()
 Base.query = db_session.query_property()
 
 
-class UserList(Base):
-    __tablename__ = 'userlist'
-    user_list_id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
+class Event(Base):
+    __tablename__ = 'event'
+    id = Column(Integer, primary_key=True)
+    user_list_id = Column(Integer)
     is_user_active = Column(Boolean, default=True)
 
-    def __init__(self, user_id=None, is_user_active=None):
-        self.user_id = user_id
-        self.is_user_active = is_user_active
-
     def __repr__(self):
-        return '<User List ID: %s, Status: %d>' % (self.user_list_id, self.is_user_active)
+        return '<ID: %s, Is Active: %d>' % (self.id, self.is_user_active)
 
 
 class Goal(Base):
     __tablename__ = 'goal'
-    goal_id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     user_list_id = Column(Integer)
-    goal = Column(String(500))
-    is_active = Column(Boolean, default=True)
+    event_id = Column(Integer)
 
     def __repr__(self):
-        return '<Goal ID: %s, Status: %d>' % (self.goal_id, self.is_active)
+        return '<ID: %s, Event ID: %d>' % (self.id, self.event_id)
 
 
-class Event(Base):
-    __tablename__ = 'event'
-    event_id = Column(Integer, primary_key=True)
-    user_list_id = Column(Integer)
-    event = Column(String(500))
-    goal_id = Column(Integer)
-    is_active = Column(Boolean, default=True)
+class List(Base):
+    __tablename__ = 'list'
+    id = Column(Integer, primary_key=True)
+    chat_id = Column(Integer)
 
     def __repr__(self):
-        return '<Event ID: %s, Status: %d>' % (self.event_id, self.is_active)
+        return '<ID: %s, Chat ID: %d>' % (self.id, self.chat_id)
 
 
-class Users(Base):
-    __tablename__ = 'users'
-    user_id = Column(Integer, primary_key=True)
-    nickname = Column(String(50))
+class UserList(Base):
+    __tablename__ = 'userlist'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    list_id = Column(Integer)
+
+    def __init__(self, user_id=None, list_id=None):
+        self.user_id = user_id
+        self.list_id = list_id
 
     def __repr__(self):
-        return '<User ID: %s, Status: %d>' % (self.user_id, self.status)
+        return '<User ID: %s, List ID: %d>' % (self.user_id, self.list_id)
+
+
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    telegram_id = Column(Integer)
+
+    def __init__(self, telegram_id=None):
+        self.telegram_id = telegram_id
+
+    def __repr__(self):
+        return '<ID: %s, Telegram ID: %d>' % (self.id, self.telegram_id)
 
 
 if __name__ == "__main__":

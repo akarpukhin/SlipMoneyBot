@@ -1,7 +1,8 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from datetime import *
 
 engine = create_engine('sqlite:///botdb.sqlite')
 
@@ -21,11 +22,31 @@ class Event(Base):
         return '<ID: %s, Is Active: %d>' % (self.id, self.is_user_active)
 
 
+# таблица с описанием цели:
+# user_list_id - ссылка на список пользователей, участвующих в достижении цели
+# event_id - ссылка на событие, для которого создали цель - может быть пустой
+# goal_target - номинальная сумма, которую хотят собрать для достижения цели
+# goal_amount - текущая сумма, которую набрали
+# goal_date - дата, к которой хотят выполнить цель
+
+# N.B. taret и amount надо сделать decimal, но это будет позднее!!!
+
 class Goal(Base):
     __tablename__ = 'goal'
     id = Column(Integer, primary_key=True)
     user_list_id = Column(Integer)
     event_id = Column(Integer)
+    goal_target = Column(Integer)
+    goal_amount = Column(Integer)
+    goal_name = Column(String(50))
+    goal_date = Column(DateTime)
+
+    def __init__(self, user_list_id = None, event_id=None, goal_target = 0, goal_amount = 0, goal_name='empty', goal_date = datetime.today()+timedelta(days=10)):
+        self.user_list_id = user_list_id
+        self.goal_name = goal_name
+        self.goal_date = goal_date
+        self.goal_target = goal_target
+
 
     def __repr__(self):
         return '<ID: %s, Event ID: %d>' % (self.id, self.event_id)
@@ -57,10 +78,12 @@ class UserList(Base):
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
+    user_name = Column(String(50))
     telegram_id = Column(Integer)
 
-    def __init__(self, telegram_id=None):
+    def __init__(self, telegram_id=None, name=None):
         self.telegram_id = telegram_id
+        self.user_name = name
 
     def __repr__(self):
         return '<ID: %s, Telegram ID: %d>' % (self.id, self.telegram_id)

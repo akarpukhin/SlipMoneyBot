@@ -1,4 +1,4 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 from telegram.chat import Chat
 import os
 from datetime import datetime
@@ -8,7 +8,7 @@ import configs
 import logging
 from botdb import db_session, engine
 from botdb import Base, User, UserList, Goal, Event, List
-
+import fundraising, info, join, put, event
 
 if not os.path.exists(configs.LOG_FILE):
     os.mkdir(os.path.dirname(configs.LOG_FILE))
@@ -28,10 +28,47 @@ def start_bot(bot, update):
     db_session.commit()
 
 
+def stert(bot, update):
+    bot.sendMessage(update.message.chat_id, text="Hi! \n I'm SplitMoneyBot! \n\n"
+                                                 "<b>Fundraising</b>\n"
+                                                 "/fundraising\n"
+                                                 "/join\n"
+                                                 "/info\n"
+                                                 "/put\n\n"
+                                                 "<b>Events</b>\n"
+                                                 "/events"
+                                                 "<b>You can also use</b>\n"
+                                                 "/help\n"
+                                                 "/exit\n"
+                                                 "/reset", parse_mode='HTML')
+    return 'Menu'
+
+
+def stop(bot, update):
+    bot.sendMessage(update.message.chat_id, "stop!")
+    return ConversationHandler.END
+
+
 def restart(bot, update):
     bot.send_message(update.message.chat_id, "Bot is restarting...")
     time.sleep(0.2)
     os.execl(sys.executable, sys.executable, *sys.argv)
+
+
+main_conversation_handler = ConversationHandler(
+    entry_points=[CommandHandler('start', start_bot)],
+
+    states={
+        'Menu': [CommandHandler('fundraising', fundraising.fundraising),
+                 CommandHandler('join', join.join),
+                 CommandHandler('info', info.info, pass_args=True),
+                 CommandHandler('put', put.put),
+                 CommandHandler("event", event.event),
+                 CommandHandler("help", f_help)],
+    },
+
+    fallbacks=[CommandHandler("exit", stop)]
+)
 
 
 def main():
@@ -39,8 +76,7 @@ def main():
 
     updtr = Updater(configs.TELEGRAM_BOT_KEY)
 
-    updtr.dispatcher.add_handler(CommandHandler("start", start_bot))
-    updtr.dispatcher.add_handler(CommandHandler('r', restart))
+    updtr.dispatcher.add_handler(main_conversation_handler)
 
     updtr.start_polling()
     updtr.idle()
@@ -49,3 +85,4 @@ def main():
 if __name__ == "__main__":
     logging.info('Bot started')
     main()
+()

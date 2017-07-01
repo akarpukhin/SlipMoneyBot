@@ -23,12 +23,9 @@ def start_bot(bot, update):
     mytext = "Привет {}! Спасибо, что добавили меня!".format(update.message.chat.first_name)
     logging.info('Пользователь {} нажал /start'.format(update.message.chat.username))
     update.message.reply_text(mytext)
-    user = User(update.message.chat.id)
-    db_session.add(user)
-    db_session.commit()
 
 
-def stert(bot, update):
+def start(bot, update):
     bot.sendMessage(update.message.chat_id, text="Hi! \n I'm SplitMoneyBot! \n\n"
                                                  "<b>Fundraising</b>\n"
                                                  "/fundraising\n"
@@ -36,12 +33,16 @@ def stert(bot, update):
                                                  "/info\n"
                                                  "/put\n\n"
                                                  "<b>Events</b>\n"
-                                                 "/events"
+                                                 "/events\n\n"
                                                  "<b>You can also use</b>\n"
                                                  "/help\n"
                                                  "/exit\n"
                                                  "/reset", parse_mode='HTML')
     return 'Menu'
+
+
+def f_help(bot, update):
+    pass
 
 
 def stop(bot, update):
@@ -56,7 +57,7 @@ def restart(bot, update):
 
 
 main_conversation_handler = ConversationHandler(
-    entry_points=[CommandHandler('start', start_bot)],
+    entry_points=[CommandHandler('start', start)],
 
     states={
         'Menu': [CommandHandler('fundraising', fundraising.fundraising),

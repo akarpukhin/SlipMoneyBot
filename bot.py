@@ -59,12 +59,13 @@ main_conversation_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
 
     states={
-        'Menu': [CommandHandler('fundraising', fundraising.fundraising),
+        'Menu': [CommandHandler('fundraising', fundraising.fund_raising_main),
                  CommandHandler('join', join.join),
                  CommandHandler('info', info.info, pass_args=True),
                  CommandHandler('put', put.put),
                  CommandHandler("event", event.event),
                  CommandHandler("help", f_help)],
+        'FundRaising' : [MessageHandler(Filters.text, fundraising.)]
     },
 
     fallbacks=[CommandHandler("exit", stop)]
@@ -74,13 +75,8 @@ def main():
     Base.metadata.create_all(bind=engine)
 
     updtr = Updater(configs.TELEGRAM_BOT_KEY)
-
     updtr.dispatcher.add_handler(main_conversation_handler)
-
-# обработчик добавления новой цели
-    updtr.dispatcher.add_handler(CommandHandler('goal', goal_add))
-
-
+    updtr.dispatcher.add_handler(CommandHandler("r",restart))
     updtr.start_polling()
     updtr.idle()
 

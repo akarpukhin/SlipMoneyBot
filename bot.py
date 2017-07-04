@@ -1,4 +1,4 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, RegexHandler
 from telegram.chat import Chat
 import os
 from datetime import datetime
@@ -51,7 +51,7 @@ def stop(bot, update):
 
 
 def restart(bot, update):
-    bot.send_message(update.message.chat_id, "Bot is restarting...")
+    bot.send_message(update.message.chat_id, "Bot is restarting...!")
     time.sleep(0.2)
     os.execl(sys.executable, sys.executable, *sys.argv)
 
@@ -66,6 +66,7 @@ main_conversation_handler = ConversationHandler(
                  CommandHandler('put', put.put),
                  CommandHandler("event", event.event),
                  CommandHandler("help", f_help)],
+        'Choise': [RegexHandler('^(Event|Goal)$', join.choise)]
     },
 
     fallbacks=[CommandHandler("exit", stop)]
@@ -78,7 +79,7 @@ def main():
     updtr = Updater(configs.TELEGRAM_BOT_KEY)
 
     updtr.dispatcher.add_handler(main_conversation_handler)
-
+    updtr.dispatcher.add_handler(CommandHandler("reset", restart))
     updtr.start_polling()
     updtr.idle()
 

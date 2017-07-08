@@ -8,7 +8,11 @@ import configs
 import logging
 from botdb import db_session, engine
 from botdb import Base, User, UserList, Goal, Event, List
-import fundraising, info, join, put, event
+import fundraising 
+import info 
+import join 
+import put 
+import event
 
 if not os.path.exists(configs.LOG_FILE):
     os.mkdir(os.path.dirname(configs.LOG_FILE))
@@ -59,13 +63,14 @@ main_conversation_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
 
     states={
-        'Menu': [CommandHandler('fundraising', fundraising.fund_raising_main),
+        'Menu': [CommandHandler('fundraising', fundraising.start_fund_raising),
                  CommandHandler('join', join.join),
                  CommandHandler('info', info.info, pass_args=True),
                  CommandHandler('put', put.put),
                  CommandHandler("event", event.event),
                  CommandHandler("help", f_help)],
-        'FundRaising' : [MessageHandler(Filters.text, fundraising.)]
+        'FundRaising' : [MessageHandler(Filters.text, fundraising.get_name)],
+        'FundRaising_Type': [ MessageHandler(Filters.text, fundraising.get_type)]
     },
 
     fallbacks=[CommandHandler("exit", stop)]

@@ -40,12 +40,15 @@ class Goal(Base):
     goal_amount = Column(Integer)
     goal_name = Column(String(50))
     goal_date = Column(DateTime)
+    goal_type = Column(Integer)
 
-    def __init__(self, user_list_id = None, event_id=None, goal_target = 0, goal_amount = 0, goal_name='empty', goal_date = datetime.today()+timedelta(days=10)):
+    def __init__(self, user_list_id = None, event_id=None, goal_target = 0, goal_amount = 0, goal_name='empty', goal_date = datetime.today()+timedelta(days=10), 
+        goal_type = 0):
         self.user_list_id = user_list_id
         self.goal_name = goal_name
         self.goal_date = goal_date
         self.goal_target = goal_target
+        self.goal_type = goal_type
 
 
     def __repr__(self):

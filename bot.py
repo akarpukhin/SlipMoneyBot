@@ -1,4 +1,5 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, RegexHandler
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.chat import Chat
 import os
 from datetime import datetime
@@ -7,7 +8,7 @@ import time
 import configs
 import logging
 from botdb import db_session, engine
-from botdb import Base, User, UserList, Goal, Event, List
+from botdb import Base, User, Goal, Event, List
 import fundraising, info, join, put, event
 
 if not os.path.exists(configs.LOG_FILE):
@@ -46,7 +47,11 @@ def f_help(bot, update):
 
 
 def stop(bot, update):
-    bot.sendMessage(update.message.chat_id, "stop!")
+    kill_keyboard = ReplyKeyboardRemove()
+    bot.sendMessage(
+        update.message.chat_id,
+        text="stop!",
+        reply_markup=kill_keyboard)
     return ConversationHandler.END
 
 
@@ -65,8 +70,15 @@ main_conversation_handler = ConversationHandler(
                  CommandHandler('info', info.info, pass_args=True),
                  CommandHandler('put', put.put),
                  CommandHandler("event", event.event),
-                 CommandHandler("help", f_help)],
-        'Choise': [RegexHandler('^(Event|Goal)$', join.choise)]
+                 CommandHandler("help", f_help),
+                 CommandHandler("exit", stop)],
+
+        'Choice': [RegexHandler('^(Goal)$', join.choose_goal),
+                   RegexHandler('^(Event)$', join.event_join),
+                   RegexHandler('^(Yes)$', fundraising.fundraising),
+                   RegexHandler('^(No)$', stop)],
+
+        'Join': [RegexHandler('^(Цель\:.*)$', join.join_goal)],
     },
 
     fallbacks=[CommandHandler("exit", stop)]

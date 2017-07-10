@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from datetime import *
+from datetime import datetime, timedelta
 
 engine = create_engine('sqlite:///botdb.sqlite')
 
@@ -42,14 +42,14 @@ class Goal(Base):
     goal_date = Column(DateTime)
     goal_type = Column(Integer)
 
-    def __init__(self, user_list_id = None, event_id=None, goal_target = 0, goal_amount = 0, goal_name='empty', goal_date = datetime.today()+timedelta(days=10), 
-        goal_type = 0):
+    def __init__(self, user_list_id=None, event_id=None, goal_target=0, goal_amount=0,
+                 goal_name='empty', goal_date=datetime.today() + timedelta(days=10),
+                 goal_type=0):
         self.user_list_id = user_list_id
         self.goal_name = goal_name
         self.goal_date = goal_date
         self.goal_target = goal_target
         self.goal_type = goal_type
-
 
     def __repr__(self):
         return '<ID: %s, Event ID: %d>' % (self.id, self.event_id)
@@ -84,9 +84,9 @@ class User(Base):
     user_name = Column(String(50))
     telegram_id = Column(Integer)
 
-    def __init__(self, telegram_id=None, name=None):
+    def __init__(self, telegram_id=None, user_name=None):
         self.telegram_id = telegram_id
-        self.user_name = name
+        self.user_name = user_name
 
     def __repr__(self):
         return '<ID: %s, Telegram ID: %d>' % (self.id, self.telegram_id)

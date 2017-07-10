@@ -18,8 +18,8 @@ if not os.path.exists(configs.LOG_FILE):
     os.mkdir(os.path.dirname(configs.LOG_FILE))
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
-                    level=logging.INFO,
-                    filename=configs.LOG_FILE
+                    level=logging.ERROR,
+#                    filename=configs.LOG_FILE
                     )
 
 
@@ -63,14 +63,14 @@ main_conversation_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
 
     states={
-        'Menu': [CommandHandler('fundraising', fundraising.start_fund_raising),
+        'Menu': [CommandHandler('fundraising', fundraising.start_fund_raising, pass_chat_data=True),
                  CommandHandler('join', join.join),
                  CommandHandler('info', info.info, pass_args=True),
                  CommandHandler('put', put.put),
                  CommandHandler("event", event.event),
                  CommandHandler("help", f_help)],
-        'FundRaising' : [MessageHandler(Filters.text, fundraising.get_name)],
-        'FundRaising_Type': [ MessageHandler(Filters.text, fundraising.get_type)]
+        'FundRaising' : [MessageHandler(Filters.text, fundraising.get_name, pass_chat_data=True)],
+        'FundRaising_Type': [ MessageHandler(Filters.text, fundraising.get_type, pass_chat_data=True)]
     },
 
     fallbacks=[CommandHandler("exit", stop)]

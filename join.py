@@ -16,47 +16,42 @@ def join(bot, update):
 def choose_goal(bot, update):
     # choice = update.message.text  не помню зачем добавлял, если не вспомню, удалю
     goal_list = [['Цель: {}'.format(g.goal_name)]
-                 for g in Goal.query.filter(Goal.status == 'A',
-                                            Goal.chat_id == update.message.chat.id)]
+                 for g in Goal.query.filter_by(is_active=True,
+                                               chat_id=update.message.chat.id)]
 
-    if len(goal_list) < 1:
+    if not goal_list:
         keyboard = [['Yes'], ['No']]
         choice_keyboard = ReplyKeyboardMarkup(keyboard)
-        bot.send_message(
-            update.message.chat_id,
-            text="Сейчас нет активных целей. Создать ?",
-            reply_markup=choice_keyboard
-        )
-        return "Choice"
+        text = "Сейчас нет активных целей. Создать ?"
+        state = "Choice"
 
     if len(goal_list) > 1:
         keyboard = goal_list
-        goal_keyboard = ReplyKeyboardMarkup(keyboard)
-        bot.send_message(
-            update.message.chat_id,
-            text="Выбери цель:",
-            reply_markup=goal_keyboard
-        )
-        return "Join"
+        choice_keyboard = ReplyKeyboardMarkup(keyboard)
+        text = "Выбери цель:"
+        state = "Join"
 
     if len(goal_list) == 1:
         keyboard = goal_list
-        goal_keyboard = ReplyKeyboardMarkup(keyboard)
-        bot.send_message(
-            update.message.chat_id,
-            text="Вы хотите присоедениться к этой цели ?",
-            reply_markup=goal_keyboard
-        )
-        return "Join"
+        choice_keyboard = ReplyKeyboardMarkup(keyboard)
+        text = "Вы хотите присоедениться к этой цели ?"
+        state = "Join"
+
+    bot.send_message(
+        update.message.chat_id,
+        text=text,
+        reply_markup=choice_keyboard
+    )
+    return state
 
 
 def join_goal(bot, update):
     goal_name = update.message.text
     goal_name = goal_name.split(': ')[1]
     goal_id = [g.id
-               for g in Goal.query.filter(Goal.status == 'A',
-                                          Goal.goal_name == goal_name,
-                                          Goal.chat_id == update.message.chat.id)]
+               for g in Goal.query.filter_by(is_active=True,
+                                             goal_name=goal_name,
+                                             chat_id=update.message.chat.id)]
 
     user_name = '{last_name} {first_name}'.format(
                 last_name=update.message.from_user.last_name,
@@ -64,10 +59,9 @@ def join_goal(bot, update):
 
     telegram_id = update.message.from_user.id
 
-    telegram_id_count = [g.telegram_id
-                         for g in User.query.filter(User.telegram_id == telegram_id)]
+    user_count = User.query.filter(User.telegram_id == telegram_id).count()
 
-    if len(telegram_id_count) < 1:
+    if user_count < 1:
             user = botdb.User(telegram_id=telegram_id, user_name=user_name)
             botdb.db_session.add(user)
             botdb.db_session.commit()

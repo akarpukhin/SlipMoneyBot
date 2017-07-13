@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-import random  # удалить потом перед merge
+from datetime import datetime, timedelta
+
 
 engine = create_engine('sqlite:///botdb.sqlite')
 
@@ -22,51 +23,59 @@ class Event(Base):
         return '<Event: {} {}}>'.format(self.id, self.is_user_active)
 
 
+# таблица с описанием цели:
+# user_list_id - ссылка на список пользователей, участвующих в достижении цели
+# event_id - ссылка на событие, для которого создали цель - может быть пустой
+# goal_target - номинальная сумма, которую хотят собрать для достижения цели
+# goal_amount - текущая сумма, которую набрали
+# goal_date - дата, к которой хотят выполнить цель
+
+# N.B. taret и amount надо сделать decimal, но это будет позднее!!!
+
 class Goal(Base):
     __tablename__ = 'goal'
     id = Column(Integer, primary_key=True)
     user_list_id = Column(Integer)
     event_id = Column(Integer)
-    goal_name = Column(String(500))
+    goal_target = Column(Integer)
+    goal_amount = Column(Integer)
+    goal_name = Column(String(50))
+    goal_date = Column(DateTime)
+    goal_type = Column(Integer)
+    chat_id = Column(Integer)
     status = Column(String(1))
 
-    def __init__(self, user_list_id=None, event_id=None, goal_name=None, status=None):
+    def __init__(self, user_list_id=None, event_id=None, goal_target=0, goal_amount=0,
+                 goal_name='empty', goal_date=datetime.today() + timedelta(days=10),
+                 goal_type=0, chat_id=None, status=None):
         self.user_list_id = user_list_id
-        self.event_id = event_id
         self.goal_name = goal_name
+        self.goal_date = goal_date
+        self.goal_target = goal_target
+        self.goal_type = goal_type
+        self.chat_id = chat_id
         self.status = status
 
     def __repr__(self):
-        return '<{}, {}, {}, {}, {}>'.format(
-            self.id, self.user_list_id, self.event_id, self.goal_name, self.status)
+        return '<{}, {}, {}, {}, {}, {}, {}, {}, {}, {}>'.format(
+            self.id, self.user_list_id, self.event_id, self.goal_target, self.goal_amount,
+            self.goal_name, self.goal_date, self.goal_type, self.chat_id, self.status)
 
 
 class List(Base):
     __tablename__ = 'list'
     id = Column(Integer, primary_key=True)
+    user_list_id = Column(Integer)
     goal_id = Column(Integer)
     user_id = Column(Integer)
 
-    def __init__(self, goal_id=None, user_id=None):
+    def __init__(self, user_list_id=None, goal_id=None, user_id=None):
+        self.user_list_id = user_list_id
         self.goal_id = goal_id
         self.user_id = user_id
 
     def __repr__(self):
-        return '<{}, {}, {}>'.format(self.id, self.goal_id, self.user_id)
-
-
-# class UserList(Base):
-#     __tablename__ = 'userlist'
-#     id = Column(Integer, primary_key=True)
-#     user_id = Column(Integer)
-#     list_id = Column(Integer)
-
-#     def __init__(self, user_id=None, list_id=None):
-#         self.user_id = user_id
-#         self.list_id = list_id
-
-#     def __repr__(self):
-#         return '<User ID: %s, List ID: %d>' % (self.user_id, self.list_id)
+        return '<{}, {}, {}, {}>'.format(self.id, self.user_list_id, self.goal_id, self.user_id)
 
 
 class User(Base):
@@ -85,7 +94,4 @@ class User(Base):
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
-    goal = Goal(random.randint(1, 100), 0, 'Это ваша цель номер 1', 'A')  # удалить потом перед merge
-    db_session.add(goal)  # удалить потом перед merge
-    db_session.commit()  # удалить потом перед merge
     print("База данных успешно создана")

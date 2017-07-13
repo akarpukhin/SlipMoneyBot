@@ -9,20 +9,24 @@ import configs
 import logging
 from botdb import db_session, engine
 from botdb import Base, User, Goal, Event, List
-import fundraising, info, join, put, event
+import fundraising 
+import info 
+import join 
+import put 
+import event
 
 if not os.path.exists(configs.LOG_FILE):
     os.mkdir(os.path.dirname(configs.LOG_FILE))
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
-                    level=logging.INFO,
+                    level=logging.ERROR,
                     filename=configs.LOG_FILE
                     )
 
 
 def start_bot(bot, update):
     mytext = "Привет {}! Спасибо, что добавили меня!".format(update.message.chat.first_name)
-    logging.info('Пользователь {} нажал /start'.format(update.message.chat.username))
+    logging.info('Пользователь {} нажал /start'.format(update.message.chat.first_name))
     update.message.reply_text(mytext)
 
 
@@ -65,7 +69,7 @@ main_conversation_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
 
     states={
-        'Menu': [CommandHandler('fundraising', fundraising.fundraising),
+        'Menu': [CommandHandler('fundraising', fundraising.start_fund_raising, pass_chat_data=True),
                  CommandHandler('join', join.join),
                  CommandHandler('info', info.info, pass_args=True),
                  CommandHandler('put', put.put),
@@ -75,10 +79,14 @@ main_conversation_handler = ConversationHandler(
 
         'Choice': [RegexHandler('^(Goal)$', join.choose_goal),
                    RegexHandler('^(Event)$', join.event_join),
-                   RegexHandler('^(Yes)$', fundraising.fundraising),
+                   RegexHandler('^(Yes)$', fundraising.start_fund_raising, pass_chat_data=True),
                    RegexHandler('^(No)$', stop)],
 
         'Join': [RegexHandler('^(Цель\:.*)$', join.join_goal)],
+
+        'FundRaising': [MessageHandler(Filters.text, fundraising.get_name, pass_chat_data=True)],
+
+        'FundRaising_Type': [MessageHandler(Filters.text, fundraising.get_type, pass_chat_data=True)]
     },
 
     fallbacks=[CommandHandler("exit", stop)]
@@ -89,9 +97,9 @@ def main():
     Base.metadata.create_all(bind=engine)
 
     updtr = Updater(configs.TELEGRAM_BOT_KEY)
-
     updtr.dispatcher.add_handler(main_conversation_handler)
-    updtr.dispatcher.add_handler(CommandHandler("reset", restart))
+
+    updtr.dispatcher.add_handler(CommandHandler("r", restart))
     updtr.start_polling()
     updtr.idle()
 

@@ -34,8 +34,7 @@ def get_type(bot, update, chat_data):
     bot.sendMessage(update.message.chat_id, text="Чундно! Тип сбора %s" % goal['goal_type'])
     goal_db = botdb.Goal(goal_name=goal['name'],
                          goal_type=goal['goal_type'],
-                         chat_id=update.message.chat.id,
-                         status='A')
+                         chat_id=update.message.chat.id)
     botdb.db_session.add(goal_db)
     botdb.db_session.commit()
     return 'Menu'

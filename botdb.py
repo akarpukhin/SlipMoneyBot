@@ -43,23 +43,23 @@ class Goal(Base):
     goal_date = Column(DateTime)
     goal_type = Column(Integer)
     chat_id = Column(Integer)
-    status = Column(String(1))
+    is_active = Column(Boolean, default=True)
 
     def __init__(self, user_list_id=None, event_id=None, goal_target=0, goal_amount=0,
                  goal_name='empty', goal_date=datetime.today() + timedelta(days=10),
-                 goal_type=0, chat_id=None, status=None):
+                 goal_type=0, chat_id=None, is_active=True):
         self.user_list_id = user_list_id
         self.goal_name = goal_name
         self.goal_date = goal_date
         self.goal_target = goal_target
         self.goal_type = goal_type
         self.chat_id = chat_id
-        self.status = status
+        self.is_active = is_active
 
     def __repr__(self):
         return '<{}, {}, {}, {}, {}, {}, {}, {}, {}, {}>'.format(
             self.id, self.user_list_id, self.event_id, self.goal_target, self.goal_amount,
-            self.goal_name, self.goal_date, self.goal_type, self.chat_id, self.status)
+            self.goal_name, self.goal_date, self.goal_type, self.chat_id, self.is_active)
 
 
 class List(Base):

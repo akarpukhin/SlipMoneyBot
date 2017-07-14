@@ -1,4 +1,5 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, RegexHandler
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.chat import Chat
 import os
 from datetime import datetime
@@ -7,7 +8,7 @@ import time
 import configs
 import logging
 from botdb import db_session, engine
-from botdb import Base, User, UserList, Goal, Event, List
+from botdb import Base, User, Goal, Event, List
 import fundraising 
 import info 
 import join 
@@ -19,7 +20,7 @@ if not os.path.exists(configs.LOG_FILE):
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.ERROR,
-#                    filename=configs.LOG_FILE
+                    filename=configs.LOG_FILE
                     )
 
 
@@ -50,14 +51,19 @@ def f_help(bot, update):
 
 
 def stop(bot, update):
-    bot.sendMessage(update.message.chat_id, "stop!")
+    kill_keyboard = ReplyKeyboardRemove()
+    bot.sendMessage(
+        update.message.chat_id,
+        text="stop!",
+        reply_markup=kill_keyboard)
     return ConversationHandler.END
 
 
 def restart(bot, update):
-    bot.send_message(update.message.chat_id, "Bot is restarting...")
+    bot.send_message(update.message.chat_id, "Bot is restarting...!")
     time.sleep(0.2)
     os.execl(sys.executable, sys.executable, *sys.argv)
+
 
 main_conversation_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
@@ -68,20 +74,32 @@ main_conversation_handler = ConversationHandler(
                  CommandHandler('info', info.info, pass_args=True),
                  CommandHandler('put', put.put),
                  CommandHandler("event", event.event),
-                 CommandHandler("help", f_help)],
-        'FundRaising' : [MessageHandler(Filters.text, fundraising.get_name, pass_chat_data=True)],
-        'FundRaising_Type': [ MessageHandler(Filters.text, fundraising.get_type, pass_chat_data=True)]
+                 CommandHandler("help", f_help),
+                 CommandHandler("exit", stop)],
+
+        'Choice': [RegexHandler('^(Goal)$', join.choose_goal),
+                   RegexHandler('^(Event)$', join.event_join),
+                   RegexHandler('^(Yes)$', fundraising.start_fund_raising, pass_chat_data=True),
+                   RegexHandler('^(No)$', stop)],
+
+        'Join': [RegexHandler('^(Цель\:.*)$', join.join_goal)],
+
+        'FundRaising': [MessageHandler(Filters.text, fundraising.get_name, pass_chat_data=True)],
+
+        'FundRaising_Type': [MessageHandler(Filters.text, fundraising.get_type, pass_chat_data=True)]
     },
 
     fallbacks=[CommandHandler("exit", stop)]
 )
+
 
 def main():
     Base.metadata.create_all(bind=engine)
 
     updtr = Updater(configs.TELEGRAM_BOT_KEY)
     updtr.dispatcher.add_handler(main_conversation_handler)
-    updtr.dispatcher.add_handler(CommandHandler("r",restart))
+
+    updtr.dispatcher.add_handler(CommandHandler("r", restart))
     updtr.start_polling()
     updtr.idle()
 

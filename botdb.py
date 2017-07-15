@@ -1,9 +1,8 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, PrimaryKeyConstraint
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timedelta
-
 
 engine = create_engine('sqlite:///botdb.sqlite')
 
@@ -30,12 +29,16 @@ class Event(Base):
 # goal_amount - текущая сумма, которую набрали
 # goal_date - дата, к которой хотят выполнить цель
 
-# N.B. taret и amount надо сделать decimal, но это будет позднее!!!
+# N.B. target и amount надо сделать decimal, но это будет позднее!!!
 
 class Goal(Base):
     __tablename__ = 'goal'
+# тип цели - самостоятельная -'u' или имеющая родительское мероприятие - 'l'
+# используется для таблицы goal - поле goal_type
+    GOAL_TYPES = ['U','L']
+
     id = Column(Integer, primary_key=True)
-    user_list_id = Column(Integer)
+#    user_list_id = Column(Integer) убираем, т.к. отказались от списков пользователей
     event_id = Column(Integer)
     goal_target = Column(Integer)
     goal_amount = Column(Integer)
@@ -44,11 +47,11 @@ class Goal(Base):
     goal_type = Column(Integer)
     chat_id = Column(Integer)
     is_active = Column(Boolean, default=True)
+    goal_type = Column(String(1), default='U')
 
-    def __init__(self, user_list_id=None, event_id=None, goal_target=0, goal_amount=0,
+    def __init__(self, event_id=None, goal_target=0, goal_amount=0,
                  goal_name='empty', goal_date=datetime.today() + timedelta(days=10),
                  goal_type=0, chat_id=None, is_active=True):
-        self.user_list_id = user_list_id
         self.goal_name = goal_name
         self.goal_date = goal_date
         self.goal_target = goal_target
@@ -58,24 +61,13 @@ class Goal(Base):
 
     def __repr__(self):
         return '<{}, {}, {}, {}, {}, {}, {}, {}, {}, {}>'.format(
-            self.id, self.user_list_id, self.event_id, self.goal_target, self.goal_amount,
+            self.id, self.event_id, self.goal_target, self.goal_amount,
             self.goal_name, self.goal_date, self.goal_type, self.chat_id, self.is_active)
 
-
-class List(Base):
-    __tablename__ = 'list'
-    id = Column(Integer, primary_key=True)
-    user_list_id = Column(Integer)
-    goal_id = Column(Integer)
-    user_id = Column(Integer)
-
-    def __init__(self, user_list_id=None, goal_id=None, user_id=None):
-        self.user_list_id = user_list_id
-        self.goal_id = goal_id
-        self.user_id = user_id
-
-    def __repr__(self):
-        return '<{}, {}, {}, {}>'.format(self.id, self.user_list_id, self.goal_id, self.user_id)
+#    @validates('goal_type')
+#    def validate_goal_type(self, key, goal_type):
+#        assert goal_type in self.GOAL_TYPES
+#        return state
 
 
 class User(Base):
@@ -90,6 +82,24 @@ class User(Base):
 
     def __repr__(self):
         return '<{}, {}>'.format(self.id, self.user_name, self.telegram_id)
+
+
+class Goal_User_Link(Base):
+    __tablename__ = 'goal_user_link'
+    __table_args__ = (
+        PrimaryKeyConstraint('user_id', 'goal_id'),
+    )
+
+    goal_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('goal.id'))
+
+    def __init__(self, goal_id=None, user_id=None):
+        self.goal_id = goal_id
+        self.user_id = user_id
+
+    def __repr__(self):
+        return '<{}, {}, {}, {}>'.format(self.id, self.goal_id, self.user_id)
+
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ import time
 import configs
 import logging
 from botdb import db_session, engine
-from botdb import Base, User, Goal, Event, List
+from botdb import Base, User, Goal, Event, Goal_User_Link
 import fundraising 
 import info 
 import join 

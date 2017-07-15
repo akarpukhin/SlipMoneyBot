@@ -4,3 +4,6 @@ token.json
 env
 splitmoneybotenv
 *.sqlite
+split_bot
+logs
+.gitignore

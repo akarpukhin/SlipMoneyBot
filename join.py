@@ -1,10 +1,22 @@
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-from botdb import Goal, User
+from botdb import Goal, User, List
+from sqlalchemy import not_
 import botdb
 
 
 def join(bot, update):
-    keyboard = [['Event'], ['Goal']]
+    user_name = '{last_name} {first_name}'.format(
+                last_name=update.message.from_user.last_name,
+                first_name=update.message.from_user.first_name)
+    telegram_id = update.message.from_user.id
+    user = User.query.filter(User.telegram_id == telegram_id).first()
+
+    if not user:
+        user = botdb.User(telegram_id=telegram_id, user_name=user_name)
+        botdb.db_session.add(user)
+        botdb.db_session.commit()
+
+    keyboard = [['Событие'], ['Цель']]
     choice_keyboard = ReplyKeyboardMarkup(keyboard)
     bot.send_message(
         update.message.chat_id,
@@ -14,13 +26,26 @@ def join(bot, update):
 
 
 def choose_goal(bot, update):
-    # choice = update.message.text  не помню зачем добавлял, если не вспомню, удалю
+
+    telegram_id = update.message.from_user.id
+
+    subquery = Goal.query.with_entities(Goal.id)\
+                         .join(List, List.goal_id == Goal.id)\
+                         .join(User, List.user_id == User.id)\
+                         .filter(User.telegram_id == telegram_id,
+                                 Goal.chat_id == update.message.chat_id)
+
+    goals = Goal.query.filter(
+        not_(Goal.id.in_(subquery)),
+        User.telegram_id == telegram_id,
+        Goal.chat_id == update.message.chat_id
+    ).all()
+
     goal_list = [['Цель: {}'.format(g.goal_name)]
-                 for g in Goal.query.filter_by(is_active=True,
-                                               chat_id=update.message.chat.id)]
+                 for g in goals]
 
     if not goal_list:
-        keyboard = [['Yes'], ['No']]
+        keyboard = [['Да'], ['Нет']]
         choice_keyboard = ReplyKeyboardMarkup(keyboard)
         text = "Сейчас нет активных целей. Создать ?"
         state = "Choice"
@@ -46,29 +71,20 @@ def choose_goal(bot, update):
 
 
 def join_goal(bot, update):
+    import bot as bot_module
     goal_name = update.message.text
     goal_name = goal_name.split(': ')[1]
-    goal_id = [g.id
-               for g in Goal.query.filter_by(is_active=True,
-                                             goal_name=goal_name,
-                                             chat_id=update.message.chat.id)]
-
-    user_name = '{last_name} {first_name}'.format(
-                last_name=update.message.from_user.last_name,
-                first_name=update.message.from_user.first_name)
+    goal = Goal.query.filter_by(is_active=True,
+                                goal_name=goal_name,
+                                chat_id=update.message.chat.id).first()
 
     telegram_id = update.message.from_user.id
+    user = User.query.filter(User.telegram_id == telegram_id).first()
 
-    user_count = User.query.filter(User.telegram_id == telegram_id).count()
+    goal.users.append(user)
+    botdb.db_session.commit()
 
-    if user_count < 1:
-            user = botdb.User(telegram_id=telegram_id, user_name=user_name)
-            botdb.db_session.add(user)
-            botdb.db_session.commit()
-    else:
-        print('уже есть')
-
-    return 'Menu'
+    return bot_module.start(bot, update)
 
 
 def event_join(bot, update):

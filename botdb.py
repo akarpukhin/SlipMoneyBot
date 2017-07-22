@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timedelta
 
@@ -35,7 +35,6 @@ class Event(Base):
 class Goal(Base):
     __tablename__ = 'goal'
     id = Column(Integer, primary_key=True)
-    user_list_id = Column(Integer)
     event_id = Column(Integer)
     goal_target = Column(Integer)
     goal_amount = Column(Integer)
@@ -44,11 +43,11 @@ class Goal(Base):
     goal_type = Column(Integer)
     chat_id = Column(Integer)
     is_active = Column(Boolean, default=True)
+    users = relationship('User', secondary='list')
 
-    def __init__(self, user_list_id=None, event_id=None, goal_target=0, goal_amount=0,
+    def __init__(self, event_id=None, goal_target=0, goal_amount=0,
                  goal_name='empty', goal_date=datetime.today() + timedelta(days=10),
                  goal_type=0, chat_id=None, is_active=True):
-        self.user_list_id = user_list_id
         self.goal_name = goal_name
         self.goal_date = goal_date
         self.goal_target = goal_target
@@ -57,25 +56,23 @@ class Goal(Base):
         self.is_active = is_active
 
     def __repr__(self):
-        return '<{}, {}, {}, {}, {}, {}, {}, {}, {}, {}>'.format(
-            self.id, self.user_list_id, self.event_id, self.goal_target, self.goal_amount,
+        return '<{}, {}, {}, {}, {}, {}, {}, {}, {}>'.format(
+            self.id, self.event_id, self.goal_target, self.goal_amount,
             self.goal_name, self.goal_date, self.goal_type, self.chat_id, self.is_active)
 
 
 class List(Base):
     __tablename__ = 'list'
     id = Column(Integer, primary_key=True)
-    user_list_id = Column(Integer)
-    goal_id = Column(Integer)
-    user_id = Column(Integer)
+    goal_id = Column(Integer, ForeignKey('goal.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
 
-    def __init__(self, user_list_id=None, goal_id=None, user_id=None):
-        self.user_list_id = user_list_id
+    def __init__(self, goal_id=None, user_id=None):
         self.goal_id = goal_id
         self.user_id = user_id
 
     def __repr__(self):
-        return '<{}, {}, {}, {}>'.format(self.id, self.user_list_id, self.goal_id, self.user_id)
+        return '<{}, {}, {}>'.format(self.id, self.goal_id, self.user_id)
 
 
 class User(Base):
@@ -83,13 +80,14 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     user_name = Column(String(50))
     telegram_id = Column(Integer)
+    goals = relationship('Goal', secondary='list')
 
     def __init__(self, telegram_id=None, user_name=None):
         self.telegram_id = telegram_id
         self.user_name = user_name
 
     def __repr__(self):
-        return '<{}, {}>'.format(self.id, self.user_name, self.telegram_id)
+        return '<{}, {}, {}>'.format(self.id, self.user_name, self.telegram_id)
 
 
 if __name__ == "__main__":

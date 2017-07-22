@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, PrimaryKeyConstraint
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import DateTime, ForeignKey, PrimaryKeyConstraint
+from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timedelta
 
@@ -35,7 +36,7 @@ class Goal(Base):
     __tablename__ = 'goal'
 # тип цели - самостоятельная -'u' или имеющая родительское мероприятие - 'l'
 # используется для таблицы goal - поле goal_type
-    GOAL_TYPES = ['U','L']
+    GOAL_LINK = ['U', 'L']
 
     id = Column(Integer, primary_key=True)
 #    user_list_id = Column(Integer) убираем, т.к. отказались от списков пользователей
@@ -44,62 +45,74 @@ class Goal(Base):
     goal_amount = Column(Integer)
     goal_name = Column(String(50))
     goal_date = Column(DateTime)
+#   тип сбора средств - фикс. итог - 1, фикс. сбор - 2, произвольный - 3
     goal_type = Column(Integer)
+# самостоятельная цель или связанная с событием
+    goal_link_status = Column(Boolean, default=False)
     chat_id = Column(Integer)
     is_active = Column(Boolean, default=True)
-    goal_type = Column(String(1), default='U')
+    users = relationship('User', secondary='list')
 
     def __init__(self, event_id=None, goal_target=0, goal_amount=0,
                  goal_name='empty', goal_date=datetime.today() + timedelta(days=10),
-                 goal_type=0, chat_id=None, is_active=True):
+                 goal_type=0, chat_id=None, is_active=True, goal_link_status=False):
         self.goal_name = goal_name
         self.goal_date = goal_date
         self.goal_target = goal_target
         self.goal_type = goal_type
         self.chat_id = chat_id
         self.is_active = is_active
+        self.goal_link_status = goal_link_status
 
     def __repr__(self):
         return '<{}, {}, {}, {}, {}, {}, {}, {}, {}, {}>'.format(
             self.id, self.event_id, self.goal_target, self.goal_amount,
-            self.goal_name, self.goal_date, self.goal_type, self.chat_id, self.is_active)
+            self.goal_name, self.goal_date, self.goal_type, self.chat_id, self.is_active,
+            self.goal_link_status)
 
 #    @validates('goal_type')
 #    def validate_goal_type(self, key, goal_type):
 #        assert goal_type in self.GOAL_TYPES
 #        return state
 
-
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     user_name = Column(String(50))
     telegram_id = Column(Integer)
+    goals = relationship('Goal', secondary='list')
 
-    def __init__(self, telegram_id=None, user_name=None):
-        self.telegram_id = telegram_id
-        self.user_name = user_name
-
-    def __repr__(self):
-        return '<{}, {}>'.format(self.id, self.user_name, self.telegram_id)
-
-
-class Goal_User_Link(Base):
-    __tablename__ = 'goal_user_link'
-    __table_args__ = (
-        PrimaryKeyConstraint('user_id', 'goal_id'),
-    )
-
-    goal_id = Column(Integer, ForeignKey('user.id'))
-    user_id = Column(Integer, ForeignKey('goal.id'))
+# связка для пользователей и цели\события
+class List(Base):
+    __tablename__ = 'list'
+    id = Column(Integer, primary_key=True)
+    goal_id = Column(Integer, ForeignKey('goal.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
 
     def __init__(self, goal_id=None, user_id=None):
         self.goal_id = goal_id
         self.user_id = user_id
 
     def __repr__(self):
-        return '<{}, {}, {}, {}>'.format(self.id, self.goal_id, self.user_id)
+        return '<{}, {}, {}>'.format(self.id, self.goal_id, self.user_id)
 
+
+
+#class Goal_User_Link(Base):
+#    __tablename__ = 'goal_user_link'
+#    __table_args__ = (
+#        PrimaryKeyConstraint('user_id', 'goal_id'),
+#    )
+#
+#    goal_id = Column(Integer, ForeignKey('user.id'))
+#    user_id = Column(Integer, ForeignKey('goal.id'))
+#
+#    def __init__(self, goal_id=None, user_id=None):
+#        self.goal_id = goal_id
+#        self.user_id = user_id
+#
+#    def __repr__(self):
+#        return '<{}, {}, {}, {}>'.format(self.id, self.goal_id, self.user_id)
 
 
 if __name__ == "__main__":

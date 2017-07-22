@@ -24,7 +24,7 @@ def get_name(bot, update, chat_data):
     goal_type_keyboard = [goal_type]
     reply_markup = ReplyKeyboardMarkup(goal_type_keyboard)
     bot.sendMessage(update.message.chat_id,
-                    text="Итак, имя цели - %(name)s" % goal)
+                    text="Итак, имя цели - %(goal_name)s" % chat_data)
     bot.sendMessage(update.message.chat_id,
                     text="Теперь выберите тип сбора:",
                     reply_markup=reply_markup)
@@ -34,12 +34,14 @@ def get_name(bot, update, chat_data):
 # получаем тип сбора и переводим на запрос
 def get_type(bot, update, chat_data):
     chat_data['goal_type'] = goal_type.index(update.message.text)
-    bot.endMessage(update.message.chat_id,
-                   text="Чудно! Тип сбора - %s." % chat_data['goal_type'])
+    bot.sendMessage(update.message.chat_id,
+                   text="Чудно! Тип сбора - %(goal_type)s." % chat_data)
+    print(update._effective_user.id)
 
-    goal_db = botdb.Goal(goal_name=chat_data['name'],
+    goal_db = botdb.Goal(goal_name=chat_data['goal_name'],
                          goal_type=chat_data['goal_type'],
-                         chat_id=update.message.chat.id)
+                         chat_id=update.message.chat.id,
+                         created_by=update._effective_user.id)
     botdb.db_session.add(goal_db)
     botdb.db_session.commit()
     return 'Menu'

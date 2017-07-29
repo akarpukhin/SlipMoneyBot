@@ -19,27 +19,29 @@ if not os.path.exists(configs.LOG_FILE):
     os.mkdir(os.path.dirname(configs.LOG_FILE))
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
-                    level=logging.ERROR,
+                    level=logging.INFO,
                     filename=configs.LOG_FILE
                     )
 
 
-def start_bot(bot, update):
-    mytext = "Привет {}! Спасибо, что добавили меня!".format(update.message.chat.first_name)
-    logging.info('Пользователь {} нажал /start'.format(update.message.chat.first_name))
-    update.message.reply_text(mytext)
-
-
 def start(bot, update):
-    bot.sendMessage(update.message.chat_id, text="Hi! \n I'm SplitMoneyBot! \n\n"
-                                                 "<b>Fundraising</b>\n"
+
+    logging.info('Пользователь {} {} нажал /start'.format(
+        update.message.from_user.last_name, update.message.from_user.first_name)
+    )
+
+    bot.sendMessage(update.message.chat_id, text="Привет! \n Я - SplitMoneyBot! \n\n"
+                                                 "Бот, который поможет вам следить"
+                                                 "за тратами в поездках\r\n"
+                                                 "или следить за вашими целями\r\n"
+                                                 "<b>Основные команды:</b>\n"
                                                  "/fundraising\n"
                                                  "/join\n"
                                                  "/info\n"
                                                  "/put\n\n"
                                                  "<b>Events</b>\n"
                                                  "/events\n\n"
-                                                 "<b>You can also use</b>\n"
+                                                 "<b>а так же:</b>\n"
                                                  "/help\n"
                                                  "/exit\n"
                                                  "/reset", parse_mode='HTML')
@@ -54,7 +56,7 @@ def stop(bot, update):
     kill_keyboard = ReplyKeyboardRemove()
     bot.sendMessage(
         update.message.chat_id,
-        text="stop!",
+        text="До встречи!\r\nМеня можно вызвать командой /start",
         reply_markup=kill_keyboard)
     return ConversationHandler.END
 
@@ -77,10 +79,10 @@ main_conversation_handler = ConversationHandler(
                  CommandHandler("help", f_help),
                  CommandHandler("exit", stop)],
 
-        'Choice': [RegexHandler('^(Goal)$', join.choose_goal),
-                   RegexHandler('^(Event)$', join.event_join),
-                   RegexHandler('^(Yes)$', fundraising.start_fund_raising, pass_chat_data=True),
-                   RegexHandler('^(No)$', stop)],
+        'Choice': [RegexHandler('^(Цель)$', join.choose_goal),
+                   RegexHandler('^(Событие)$', join.event_join),
+                   RegexHandler('^(Да)$', fundraising.start_fund_raising, pass_chat_data=True),
+                   RegexHandler('^(Нет)$', stop)],
 
         'Join': [RegexHandler('^(Цель\:.*)$', join.join_goal)],
 

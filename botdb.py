@@ -27,7 +27,7 @@ class Event(Base):
 # event_id - ссылка на событие, для которого создали цель - может быть пустой
 # goal_target - номинальная сумма, которую хотят собрать для достижения цели
 # goal_amount - текущая сумма, которую набрали
-# goal_type - тип сбора средств - фикс. итог - 1, фикс. сбор - 2, произвольный - 3
+# goal_type - тип сбора средств - фикс. итог - 0, фикс. сбор - 1, произвольный - 2
 # goal_date - дата, к которой хотят выполнить цель
 # goal_link_status - самостоятельная цель или связанная с событием
 # chat_id - идентификатор группы, в которой создана цель
@@ -84,13 +84,6 @@ class Goal(Base):
 #        assert goal_type in self.GOAL_TYPES
 #        return state
 
-class User(Base):
-    __tablename__ = 'user'
-    id = Column(Integer, primary_key=True)
-    user_name = Column(String(50))
-    telegram_id = Column(Integer)
-    goals = relationship('Goal', secondary='list')
-
 # связка для пользователей и цели\события
 class List(Base):
     __tablename__ = 'list'
@@ -106,23 +99,19 @@ class List(Base):
         return '<{}, {}, {}>'.format(self.id, self.goal_id, self.user_id)
 
 
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    user_name = Column(String(50))
+    telegram_id = Column(Integer)
+    goals = relationship('Goal', secondary='list')
 
-#class Goal_User_Link(Base):
-#    __tablename__ = 'goal_user_link'
-#    __table_args__ = (
-#        PrimaryKeyConstraint('user_id', 'goal_id'),
-#    )
-#
-#    goal_id = Column(Integer, ForeignKey('user.id'))
-#    user_id = Column(Integer, ForeignKey('goal.id'))
-#
-#    def __init__(self, goal_id=None, user_id=None):
-#        self.goal_id = goal_id
-#        self.user_id = user_id
-#
-#    def __repr__(self):
-#        return '<{}, {}, {}, {}>'.format(self.id, self.goal_id, self.user_id)
+    def __init__(self, telegram_id=None, user_name=None):
+        self.telegram_id = telegram_id
+        self.user_name = user_name
 
+    def __repr__(self):
+        return '<{}, {}, {}>'.format(self.id, self.user_name, self.telegram_id)
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)

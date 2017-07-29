@@ -35,8 +35,7 @@ def get_name(bot, update, chat_data):
 def get_type(bot, update, chat_data):
     chat_data['goal_type'] = goal_type.index(update.message.text)
     bot.sendMessage(update.message.chat_id,
-                   text="Чудно! Тип сбора - %(goal_type)s." % chat_data)
-    print(update._effective_user.id)
+                    text="Чудно! Тип сбора - %(goal_type)s." % chat_data)
 
     goal_db = botdb.Goal(goal_name=chat_data['goal_name'],
                          goal_type=chat_data['goal_type'],

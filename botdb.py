@@ -58,6 +58,7 @@ class Goal(Base):
                  is_active=True):
         self.goal_name = goal_name
         self.goal_date = goal_date
+        self.goal_amount = goal_amount
         self.goal_target = goal_target
         self.goal_type = goal_type
         self.goal_link_status = goal_link_status
@@ -83,6 +84,7 @@ class Goal(Base):
 #    def validate_goal_type(self, key, goal_type):
 #        assert goal_type in self.GOAL_TYPES
 #        return state
+
 
 # связка для пользователей и цели\события
 class List(Base):
@@ -112,6 +114,7 @@ class User(Base):
 
     def __repr__(self):
         return '<{}, {}, {}>'.format(self.id, self.user_name, self.telegram_id)
+
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)

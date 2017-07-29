@@ -88,7 +88,9 @@ main_conversation_handler = ConversationHandler(
 
         'FundRaising': [MessageHandler(Filters.text, fundraising.get_name, pass_chat_data=True)],
 
-        'FundRaising_Type': [MessageHandler(Filters.text, fundraising.get_type, pass_chat_data=True)]
+        'FundRaising_Type': [MessageHandler(Filters.text, fundraising.get_type, pass_chat_data=True)],
+
+        'Info_Name': [MessageHandler([Filters.text], info.info_name)]
     },
 
     fallbacks=[CommandHandler("exit", stop)]
@@ -101,7 +103,7 @@ def main():
     updtr = Updater(configs.TELEGRAM_BOT_KEY)
     updtr.dispatcher.add_handler(main_conversation_handler)
 
-    updtr.dispatcher.add_handler(CommandHandler("r", restart))
+    updtr.dispatcher.add_handler(CommandHandler("reset", restart))
     updtr.start_polling()
     updtr.idle()
 

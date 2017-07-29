@@ -1,4 +1,4 @@
-from telegram import ReplyKeyboardMarkup
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from datetime import datetime, timedelta
 import botdb
 
@@ -33,9 +33,13 @@ def get_name(bot, update, chat_data):
 
 # получаем тип сбора и переводим на запрос
 def get_type(bot, update, chat_data):
+    import bot as bot_module
+    kill_keyboard = ReplyKeyboardRemove()
     chat_data['goal_type'] = goal_type.index(update.message.text)
     bot.sendMessage(update.message.chat_id,
-                    text="Чудно! Тип сбора - %(goal_type)s." % chat_data)
+                    text="Чудно! Цель %s с типом %s создана."
+                    % (chat_data['goal_name'], goal_type[chat_data['goal_type']]),
+                    reply_markup=kill_keyboard)
 
     goal_db = botdb.Goal(goal_name=chat_data['goal_name'],
                          goal_type=chat_data['goal_type'],
@@ -43,4 +47,4 @@ def get_type(bot, update, chat_data):
                          created_by=update._effective_user.id)
     botdb.db_session.add(goal_db)
     botdb.db_session.commit()
-    return 'Menu'
+    return bot_module.start(bot, update)

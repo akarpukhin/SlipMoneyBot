@@ -84,6 +84,7 @@ class Goal(Base):
 #        assert goal_type in self.GOAL_TYPES
 #        return state
 
+
 # связка для пользователей и цели\события
 class List(Base):
     __tablename__ = 'list'
@@ -112,6 +113,7 @@ class User(Base):
 
     def __repr__(self):
         return '<{}, {}, {}>'.format(self.id, self.user_name, self.telegram_id)
+
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)

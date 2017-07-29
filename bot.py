@@ -101,7 +101,7 @@ def main():
     updtr = Updater(configs.TELEGRAM_BOT_KEY)
     updtr.dispatcher.add_handler(main_conversation_handler)
 
-    updtr.dispatcher.add_handler(CommandHandler("r", restart))
+    updtr.dispatcher.add_handler(CommandHandler("reset", restart))
     updtr.start_polling()
     updtr.idle()
 

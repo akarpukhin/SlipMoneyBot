@@ -20,21 +20,28 @@ def start_fund_raising(bot, update, chat_data):
 
 # получаем имя сбора и переводим на запрос типа
 def get_name(bot, update, chat_data):
-    goal['name'] = update.message.text
+    chat_data['goal_name'] = update.message.text
     goal_type_keyboard = [goal_type]
     reply_markup = ReplyKeyboardMarkup(goal_type_keyboard)
     bot.sendMessage(update.message.chat_id,
-                    text="Итак, имя цели - %(name)s\nТеперь выберите тип сбора: " % goal,
+                    text="Итак, имя цели - %(goal_name)s" % chat_data)
+    bot.sendMessage(update.message.chat_id,
+                    text="Теперь выберите тип сбора:",
                     reply_markup=reply_markup)
     return 'FundRaising_Type'
 
 
+# получаем тип сбора и переводим на запрос
 def get_type(bot, update, chat_data):
-    goal['goal_type'] = goal_type.index(update.message.text)
-    bot.sendMessage(update.message.chat_id, text="Чундно! Тип сбора %s" % goal['goal_type'])
-    goal_db = botdb.Goal(goal_name=goal['name'],
-                         goal_type=goal['goal_type'],
-                         chat_id=update.message.chat.id)
+    chat_data['goal_type'] = goal_type.index(update.message.text)
+    bot.sendMessage(update.message.chat_id,
+                   text="Чудно! Тип сбора - %(goal_type)s." % chat_data)
+    print(update._effective_user.id)
+
+    goal_db = botdb.Goal(goal_name=chat_data['goal_name'],
+                         goal_type=chat_data['goal_type'],
+                         chat_id=update.message.chat.id,
+                         created_by=update._effective_user.id)
     botdb.db_session.add(goal_db)
     botdb.db_session.commit()
     return 'Menu'

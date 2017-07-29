@@ -40,7 +40,6 @@ def get_type(bot, update, chat_data):
                     text="Чудно! Цель %s с типом %s создана."
                     % (chat_data['goal_name'], goal_type[chat_data['goal_type']]),
                     reply_markup=kill_keyboard)
-    print(update._effective_user.id)
 
     goal_db = botdb.Goal(goal_name=chat_data['goal_name'],
                          goal_type=chat_data['goal_type'],

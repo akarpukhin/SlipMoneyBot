@@ -90,7 +90,7 @@ main_conversation_handler = ConversationHandler(
 
         'FundRaising_Type': [MessageHandler(Filters.text, fundraising.get_type, pass_chat_data=True)],
 
-        'Info_Name': [MessageHandler([Filters.text], info.info_name)]
+        'Info_Name': [MessageHandler(Filters.text, info.info_name)]
     },
 
     fallbacks=[CommandHandler("exit", stop)]

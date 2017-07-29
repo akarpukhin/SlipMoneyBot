@@ -71,7 +71,6 @@ def choose_goal(bot, update):
 
 
 def join_goal(bot, update):
-    import bot as bot_module
     goal_name = update.message.text
     goal_name = goal_name.split(': ')[1]
     goal = Goal.query.filter_by(is_active=True,
@@ -84,7 +83,13 @@ def join_goal(bot, update):
     goal.users.append(user)
     botdb.db_session.commit()
 
-    return bot_module.start(bot, update)
+    kill_keyboard = ReplyKeyboardRemove()
+    bot.sendMessage(
+        update.message.chat_id,
+        text="Поздравляю!\r\nВы учавствуете в цели: {goal_name}".format(goal_name=goal_name),
+        reply_markup=kill_keyboard)
+
+    return "Menu"
 
 
 def event_join(bot, update):

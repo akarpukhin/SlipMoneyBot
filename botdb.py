@@ -58,6 +58,7 @@ class Goal(Base):
                  is_active=True):
         self.goal_name = goal_name
         self.goal_date = goal_date
+        self.goal_amount = goal_amount
         self.goal_target = goal_target
         self.goal_type = goal_type
         self.goal_link_status = goal_link_status
